@@ -1,0 +1,83 @@
+﻿@section Styles {
+    <style>
+        
+    </style>
+}
+
+<div class="container mt-5">
+    <div class="card container">
+      <div class="card-body">
+        <div class="col-xl-11 col-lg-10 col-md-9 col-12 ">
+
+            <div class="row align-items-center">
+                <div class="col-md-2 col-xxl-1">
+                    <label for="inputMessage" class="col-form-label ">訊息</label>
+                </div>
+                <div class="col-md-8 col-xxl-9  mt-0 mt-md-3">
+                    <input type="text" id="inputMessage" class="form-control" aria-describedby="inputMessage">
+                </div>
+            </div>
+            <div class="row align-items-center mt-5">
+                <div class="col-md-2 col-xxl-1">
+                    <label for="inputFiles" class="col-form-label ">檔案</label>
+                </div>
+                <div class="col-md-8 col-xxl-9  mt-0 mt-md-3">
+                    <input type="file" id="inputFiles" class="form-control" aria-describedby="inputFiles">
+                </div>
+                <div class="col-md-2 col-xxl-2">
+                    <button  id="btnUpload" class="btn btn-primary">上傳</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(async () => {
+            $(document).on('click', '#btnUpload', async function(e) {
+                const file = $('#inputFiles')[0].files[0];
+                const message = $('#inputMessage').val();
+
+                if (message.length === 0) {
+                    alert('請輸入訊息!');
+                }
+                else if (file === null || file === undefined || file.length === 0) {
+                    alert('請選擇檔案!');
+                }
+                else {
+                    let formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('message', message);
+
+                    const url = `/Streaming/Upload`;
+
+                    const result = await uploadFile(url, formData);
+                    if (result.status == 200) {
+                        $('#inputFiles')[0].value = '';
+                        $('#inputMessage').val('');
+                        alert('上傳成功!');
+                    } else {
+                        console.log(result);
+                        alert(JSON.stringify(result));
+                    }
+                }
+            });
+        });
+
+        async function uploadFile(url, data) {
+            try {
+                let settings = {
+                    method: 'post',
+                    body: data,
+                };
+                const fetchResponse = await fetch(`${url}`, settings).then(r => r.json().then(data => ({ status: r.status, body: data })));
+                return fetchResponse;
+            } catch (e) {
+                console.log(e)
+                return e;
+            }
+        }
+    </script>
+}
